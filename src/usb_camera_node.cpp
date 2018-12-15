@@ -18,6 +18,11 @@
 #include "opencv2/highgui/highgui.hpp"
 
 #include "sensor_msgs/msg/image.hpp"
+#include "sensor_msgs/msg/compressed_image.hpp"
+#include "sensor_msgs/image_encodings.hpp"
+
+#include "cv_bridge/cv_bridge.h"
+
 #include "std_msgs/msg/bool.hpp"
 
 
@@ -52,23 +57,6 @@ mat_type2encoding(int mat_type)
  * \param[in] frame_id ID for the ROS message.
  * \param[out] Allocated shared pointer for the ROS Image message.
  */
-void convert_frame_to_message(
-                              const cv::Mat & frame, size_t frame_id, sensor_msgs::msg::Image::SharedPtr msg)
-{
-    // copy cv information into ros message
-    msg->is_bigendian = false;
-    msg->height = frame.rows;
-    
-    msg->width = frame.cols;
-    msg->encoding = mat_type2encoding(frame.type());
-    
-    msg->step = static_cast<sensor_msgs::msg::Image::_step_type>(frame.step);
-    
-    size_t size = frame.step * frame.rows;
-    msg->data.resize(size);
-    memcpy(&msg->data[0], frame.data, size);
-    msg->header.frame_id = std::to_string(frame_id);
-}
 
 
 
@@ -78,10 +66,10 @@ public:
     explicit Camera(const std::string & topic_name, const size_t & width, const size_t & height, double freq) : Node("camera")
     {
         // instanstiate message
-        msg_ = std::make_shared<sensor_msgs::msg::Image>();
+        msg_ = std::make_shared<sensor_msgs::msg::CompressedImage>();
         
         // instanstiate publisher
-        pub_ = this->create_publisher<sensor_msgs::msg::Image>(topic_name);
+        pub_ = this->create_publisher<sensor_msgs::msg::CompressedImage>(topic_name);
         
         
         
@@ -140,11 +128,49 @@ public:
         timer_ = this->create_wall_timer(100ms, capture_frame);
         
         
+        
     }
     
+    
+    void convert_frame_to_message(
+                                  const cv::Mat & frame, size_t frame_id, sensor_msgs::msg::CompressedImage::SharedPtr msg)
+    {
+        // copy cv information into ros message
+        //msg->is_bigendian = false;
+        //msg->height = frame.rows;
+        
+        //msg->width = frame.cols;
+        //msg->encoding = mat_type2encoding(frame.type());
+        
+        //msg->step = static_cast<sensor_msgs::msg::Image::_step_type>(frame.step);
+        
+        //msg->format = "jpeg";
+        std_msgs::msg::Header header;
+        header.stamp = this->now();
+        sensor_msgs::msg::CompressedImage img_msg;
+        
+        img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::RGB8, frame);
+        
+        img_bridge.toCompressedImageMsg(img_msg); // from cv_bridge to sensor_msgs::Image
+        //pub_img.publish(img_msg); // ros::Publisher pub_img = node.advertise<sensor_msgs::Image>("topic", queuesize);
+        msg->header =img_msg.header;
+        msg->data = img_msg.data;
+        //memcpy(&msg->data[0], frame.data, size);
+        
+        //size_t size = frame.step * frame.rows;
+        //msg->data.resize(size);
+        //std::cout << msg->data.size() << std::endl;
+        //memcpy(&msg->data[0], frame.data, size);
+        //msg->header.frame_id = std::to_string(frame_id);
+    }
+
 private:
-    std::shared_ptr<sensor_msgs::msg::Image> msg_;
-    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_;
+    cv_bridge::CvImage img_bridge;
+    //std::shared_ptr<sensor_msgs::msg::Image> msg_;
+    std::shared_ptr<sensor_msgs::msg::CompressedImage> msg_;
+    rclcpp::Publisher<sensor_msgs::msg::CompressedImage>::SharedPtr pub_;
+    //rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_;
+
     rclcpp::TimerBase::SharedPtr timer_;
     cv::Mat frame;
     cv::Mat flipped_frame;
@@ -168,7 +194,7 @@ int main(int argc, char * argv[])
     size_t width = 320;
     size_t height = 240;
     
-    std::string topic("image");
+    std::string topic("/iris/image");
     
     // Force flush of the stdout buffer.
     // This ensures a correct sync of all prints

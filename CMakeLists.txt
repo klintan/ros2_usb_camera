@@ -17,10 +17,11 @@ find_package(rmw REQUIRED)
 find_package(rmw_opensplice_cpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(cv_bridge REQUIRED)
 
 find_package(OpenCV REQUIRED)
 
-include_directories(include)
+include_directories(include ${cv_bridge_INCLUDE_DIRS})
 
 
 function(custom_executable target)
@@ -31,6 +32,7 @@ function(custom_executable target)
     "sensor_msgs"
     "rcutils"
     "std_msgs"
+    "cv_bridge"
     "OpenCV")
     install(TARGETS ${target}
     DESTINATION lib/${PROJECT_NAME})
