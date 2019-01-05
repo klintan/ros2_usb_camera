@@ -12,18 +12,6 @@
 #include <string>
 
 #include "usb_camera_node.hpp"
-#include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/string.hpp"
-
-#include "opencv2/highgui/highgui.hpp"
-
-#include "sensor_msgs/msg/image.hpp"
-#include "sensor_msgs/msg/compressed_image.hpp"
-#include "sensor_msgs/image_encodings.hpp"
-
-#include "cv_bridge/cv_bridge.h"
-
-#include "std_msgs/msg/bool.hpp"
 
 
 using namespace std::chrono_literals;
@@ -58,132 +46,111 @@ mat_type2encoding(int mat_type)
  * \param[out] Allocated shared pointer for the ROS Image message.
  */
 
+Camera::~Camera(){}
 
-
-class Camera : public rclcpp::Node
+Camera::Camera(const std::string & topic_name, const size_t & width, const size_t & height, double freq) :
+Node("camera")
 {
-public:
-    explicit Camera(const std::string & topic_name, const size_t & width, const size_t & height, double freq) : Node("camera")
-    {
-        // instanstiate message
-        msg_ = std::make_shared<sensor_msgs::msg::CompressedImage>();
-        
-        // instanstiate publisher
-        pub_ = this->create_publisher<sensor_msgs::msg::CompressedImage>(topic_name);
-        
-        
-        
-        auto capture_frame =
-        [this]() -> void {
-            cap >> frame;
-            if (!frame.empty()) {
-                // Convert to a ROS image
-                if (!is_flipped) {
-                    
-                    convert_frame_to_message(frame, i, msg_);
-                } else {
-                    // Flip the frame if needed
-                    cv::flip(frame, flipped_frame, 1);
-                    convert_frame_to_message(flipped_frame, i, msg_);
-                }
+    i = 1;
+    show_camera = false;
+    is_flipped = false;
+    
+    // instanstiate message
+    compressed_image_msg_ = std::make_shared<sensor_msgs::msg::CompressedImage>();
+    
+    // instanstiate publisher
+    compressed_image_pub_ = this->create_publisher<sensor_msgs::msg::CompressedImage>(topic_name);
+    std::string camera_info_url_ = "";
+    std::string camera_name_ = "";
+    
+    //cinfo_manager_.reset(new camera_info_manager::CameraInfoManager(this, camera_name_, camera_info_url_));
+    
+    //camera_info_msg_ = std::make_shared<sensor_msgs::msg::CameraInfo>(cinfo_manager_.getCameraInfo());
+    
+    //cinfo->header.frame_id = config_.frame_id;
+    //cinfo->header.stamp = timestamp;
+    
+    //camera_info_pub_ = image_pub_.advertiseCamera("image_raw", 1, false);
+    
+    
+    
+    auto capture_frame =
+    [this]() -> void {
+        cap >> frame;
+        if (!frame.empty()) {
+            // Convert to a ROS image
+            if (!is_flipped) {
                 
-                // Publish the image message and increment the frame_id.
-                RCLCPP_INFO(this->get_logger(), "Publishing image #%zd", i);
+                convert_frame_to_message(frame, i, compressed_image_msg_);
+                convert_frame_to_message(frame, i, image_msg_);
                 
-                // Put the message into a queue to be processed by the middleware.
-                // This call is non-blocking.
-                pub_->publish(msg_);
-                ++i;
+            } else {
+                // Flip the frame if needed
+                cv::flip(frame, flipped_frame, 1);
+                convert_frame_to_message(flipped_frame, i, compressed_image_msg_);
             }
-        };
-        
-        cap.open(0);
-        
-        cap.set(CV_CAP_PROP_FRAME_WIDTH, static_cast<double>(width));
-        cap.set(CV_CAP_PROP_FRAME_HEIGHT, static_cast<double>(height));
-        
-        //if (!cap.isOpened()) {
-        //    RCLCPP_ERROR(this->get_logger(), "Could not open video stream");
-        //}
-        
-        // Create a function for when messages are to be sent.
-        /*auto publish_message =
-         [this](sensor_msgs::msg::Image::SharedPtr msg, size_t i) -> void
-         {
-         RCLCPP_INFO(this->get_logger(), "Publishing image #%zd", i);
-         
-         // Put the message into a queue to be processed by the middleware.
-         // This call is non-blocking.
-         pub_->publish(msg)
-         };
-         */
-        
-        // Initialize a shared pointer to an Image message.
-        //msg_->is_bigendian = false;
-        
-        /*auto capture_frame = [this]() -> cv::Mat {
-         return 0;
-         }*/
-        
-        timer_ = this->create_wall_timer(100ms, capture_frame);
-        
-        
-        
-    }
+            
+            // Publish the image message and increment the frame_id.
+            RCLCPP_INFO(this->get_logger(), "Publishing image #%zd", i);
+            
+            // Put the message into a queue to be processed by the middleware.
+            // This call is non-blocking.
+            compressed_image_pub_->publish(compressed_image_msg_);
+            camera_info_pub_.publish(image_msg_, camera_info_msg_);
+            
+            ++i;
+        }
+    };
+    
+    cap.open(0);
+    
+    cap.set(CV_CAP_PROP_FRAME_WIDTH, static_cast<double>(width));
+    cap.set(CV_CAP_PROP_FRAME_HEIGHT, static_cast<double>(height));
     
     
-    void convert_frame_to_message(
-                                  const cv::Mat & frame, size_t frame_id, sensor_msgs::msg::CompressedImage::SharedPtr msg)
-    {
-        // copy cv information into ros message
-        //msg->is_bigendian = false;
-        //msg->height = frame.rows;
-        
-        //msg->width = frame.cols;
-        //msg->encoding = mat_type2encoding(frame.type());
-        
-        //msg->step = static_cast<sensor_msgs::msg::Image::_step_type>(frame.step);
-        
-        //msg->format = "jpeg";
-        std_msgs::msg::Header header;
-        header.stamp = this->now();
-        sensor_msgs::msg::CompressedImage img_msg;
-        
-        img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::RGB8, frame);
-        
-        img_bridge.toCompressedImageMsg(img_msg); // from cv_bridge to sensor_msgs::Image
-        //pub_img.publish(img_msg); // ros::Publisher pub_img = node.advertise<sensor_msgs::Image>("topic", queuesize);
-        msg->header =img_msg.header;
-        msg->data = img_msg.data;
-        //memcpy(&msg->data[0], frame.data, size);
-        
-        //size_t size = frame.step * frame.rows;
-        //msg->data.resize(size);
-        //std::cout << msg->data.size() << std::endl;
-        //memcpy(&msg->data[0], frame.data, size);
-        //msg->header.frame_id = std::to_string(frame_id);
-    }
+    timer_ = this->create_wall_timer(100ms, capture_frame);
+    
+    
+    
+}
 
-private:
-    cv_bridge::CvImage img_bridge;
-    //std::shared_ptr<sensor_msgs::msg::Image> msg_;
-    std::shared_ptr<sensor_msgs::msg::CompressedImage> msg_;
-    rclcpp::Publisher<sensor_msgs::msg::CompressedImage>::SharedPtr pub_;
-    //rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_;
 
-    rclcpp::TimerBase::SharedPtr timer_;
-    cv::Mat frame;
-    cv::Mat flipped_frame;
-    cv::VideoCapture cap;
-    size_t i = 1;
-    bool show_camera = false;
-    bool is_flipped = false;
-};
+void Camera::convert_frame_to_message(
+                                      const cv::Mat & frame, size_t frame_id, sensor_msgs::msg::CompressedImage::SharedPtr msg)
+{
+    
+    std_msgs::msg::Header header;
+    header.stamp = this->now();
+    sensor_msgs::msg::CompressedImage img_msg;
+    
+    img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, frame);
+    
+    img_bridge.toCompressedImageMsg(img_msg); // from cv_bridge to sensor_msgs::CompressedImage
+    msg->header =img_msg.header;
+    msg->data = img_msg.data;
+}
+
+
+void Camera::convert_frame_to_message(
+                                      const cv::Mat & frame, size_t frame_id, sensor_msgs::msg::Image::SharedPtr msg)
+{
+    
+    std_msgs::msg::Header header;
+    header.stamp = this->now();
+    sensor_msgs::msg::Image img_msg;
+    
+    img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, frame);
+    
+    img_bridge.toImageMsg(img_msg); // from cv_bridge to sensor_msgs::Image
+    msg->header =img_msg.header;
+    msg->data = img_msg.data;
+}
+
 
 
 int main(int argc, char * argv[])
 {
-    
+    // based on libuvc
     std::cout << "Starting camera node" << std::endl;
     
     rclcpp::init(argc, argv);
@@ -195,6 +162,10 @@ int main(int argc, char * argv[])
     size_t height = 240;
     
     std::string topic("/iris/image");
+    
+    //node handle
+    auto node_ = std::make_shared<rclcpp::Node>(topic);
+    
     
     // Force flush of the stdout buffer.
     // This ensures a correct sync of all prints

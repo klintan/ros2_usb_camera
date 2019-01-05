@@ -18,6 +18,8 @@ find_package(rmw_opensplice_cpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
+find_package(camera_info_manager REQUIRED)
+find_package(image_transport REQUIRED)
 
 find_package(OpenCV REQUIRED)
 
@@ -33,6 +35,8 @@ function(custom_executable target)
     "rcutils"
     "std_msgs"
     "cv_bridge"
+    "camera_info_manager"
+    "image_transport"
     "OpenCV")
     install(TARGETS ${target}
     DESTINATION lib/${PROJECT_NAME})
