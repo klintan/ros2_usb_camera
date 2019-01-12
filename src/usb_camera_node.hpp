@@ -46,9 +46,11 @@ private:
     std::shared_ptr<sensor_msgs::msg::CameraInfo> camera_info_msg_;
     
     //camera_info_manager::CameraInfoManager cinfo_manager_;
-    image_transport::CameraPublisher camera_info_pub_;
+    //image_transport::CameraPublisher camera_info_pub_;
 
     //image_transport::ImageTransport image_pub_;
+    
+    void ImageCallback();
 
     rclcpp::TimerBase::SharedPtr timer_;
     cv::Mat frame;
@@ -59,5 +61,48 @@ private:
     bool is_flipped;
 };
 
+
+
+class CameraNode {
+public:
+    explicit CameraNode(std::shared_ptr<rclcpp::Node> const nh, std::shared_ptr<rclcpp::Node> const privnh);
+    ~CameraNode();
+    
+    bool Start();
+    void Stop();
+    
+private:
+    rclcpp::TimerBase::SharedPtr timer_;
+    cv::Mat frame;
+    cv::Mat flipped_frame;
+    cv::VideoCapture cap;
+    
+    cv_bridge::CvImage img_bridge;
+
+    
+    size_t i;
+    bool show_camera;
+    bool is_flipped;
+    
+    std::shared_ptr<rclcpp::Node> nh_;
+    std::shared_ptr<rclcpp::Node> priv_nh_;
+    
+    camera_info_manager::CameraInfoManager cinfo_manager_;
+    image_transport::CameraPublisher camera_info_pub_;
+    
+    std::shared_ptr<sensor_msgs::msg::Image> image_msg_;
+    std::shared_ptr<sensor_msgs::msg::CompressedImage> compressed_image_msg_;
+
+    
+    
+    void ConvertFrameToMessage(const cv::Mat & frame, size_t frame_id, sensor_msgs::msg::Image::SharedPtr msg);
+    void ConvertFrameToMessage(const cv::Mat & frame, size_t frame_id, sensor_msgs::msg::CompressedImage::SharedPtr msg);
+
+    image_transport::ImageTransport image_pub_;
+    
+    void CaptureFrame();
+    
+
+};
 
 #endif /* usb_camera_node_hpp */
