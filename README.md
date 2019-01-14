@@ -1,17 +1,17 @@
 # ROS2 USB Camera Node
 
-Its based on both the image_tools cam2image demos for Ros2 as well as the libuvc project for ROS1. 
+Its based on both the image_tools cam2image demos for ROS2 as well as the libuvc and usb_cam project for ROS1. 
 
 Features
-- CameraInfo (not done)
-- CompressedImage topic (done)
-- Image topic (not done)
+- CameraInfo available
+- CompressedImage topic (see compressed images for republishing using image_transport)
+- Image topic
 
 
-There will be major changes to the code as it is not done yet, WIP.
+There might be major changes to the code as it is a WIP.
 
 
-#### Topics
+### Topics
 `/camera_info` - topic for camera info
 `/image_raw` - topic for raw image data
 
@@ -26,6 +26,10 @@ Run
 ## Usage
 
 `ros2 run usb_camera usb_camera_node`
+
+
+### Calibration files
+To use the camera info functionality you need to load a file from the camera_calibration (https://github.com/ros-perception/image_pipeline/tree/ros2/camera_calibration) library and put it in/name it `file:///Users/<youruser>/.ros/camera_info/camera.yaml`
 
 
 ### Compressed images
