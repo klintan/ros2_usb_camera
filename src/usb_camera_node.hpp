@@ -53,11 +53,8 @@ private:
     image_transport::CameraPublisher camera_info_pub_;
     
     std::shared_ptr<sensor_msgs::msg::Image> image_msg_;
-    std::shared_ptr<sensor_msgs::msg::CompressedImage> compressed_image_msg_;
-
     
-    
-    std::shared_ptr<sensor_msgs::msg::Image> ConvertFrameToMessage(const cv::Mat & frame, size_t frame_id);
+    std::shared_ptr<sensor_msgs::msg::Image> ConvertFrameToMessage(const cv::Mat & frame);
 
     image_transport::ImageTransport image_pub_;
     

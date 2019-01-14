@@ -46,36 +46,34 @@ cinfo_manager_(nh_.get()) {
 };
 
 
+
 CameraNode::~CameraNode() {
     
 }
 
 
 /*sensor_msgs::msg::CompressedImage CameraNode::ConvertFrameToMessage(
-                                       const cv::Mat & frame, size_t frame_id, sensor_msgs::msg::CompressedImage::SharedPtr msg)
-{
-    
-    std_msgs::msg::Header header;
-    //header.stamp = this->now();
-    sensor_msgs::msg::CompressedImage img_msg;
-    
-    img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, frame);
-    
-    img_bridge.toCompressedImageMsg(img_msg); // from cv_bridge to sensor_msgs::CompressedImage
-    msg->header =img_msg.header;
-    msg->data = img_msg.data;
-}*/
+ const cv::Mat & frame, size_t frame_id, sensor_msgs::msg::CompressedImage::SharedPtr msg)
+ {
+ 
+ std_msgs::msg::Header header;
+ //header.stamp = this->now();
+ sensor_msgs::msg::CompressedImage img_msg;
+ 
+ img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, frame);
+ 
+ img_bridge.toCompressedImageMsg(img_msg); // from cv_bridge to sensor_msgs::CompressedImage
+ msg->header =img_msg.header;
+ msg->data = img_msg.data;
+ }*/
 
-std::shared_ptr<sensor_msgs::msg::Image> CameraNode::ConvertFrameToMessage(
-                                       const cv::Mat & frame, size_t frame_id)
+std::shared_ptr<sensor_msgs::msg::Image> CameraNode::ConvertFrameToMessage(const cv::Mat & frame)
 {
     std_msgs::msg::Header header;
     img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, frame);
-    image_msg_ = img_bridge.toImageMsg(); // from cv_bridge to sensor_msgs::Image
+    image_msg_ = img_bridge.toImageMsg(); // from cv_bridge to sensor_msgs::msg::Image
     return image_msg_;
 }
-
-
 
 
 void CameraNode::ImageCallback() {
@@ -84,24 +82,22 @@ void CameraNode::ImageCallback() {
     if (!frame.empty()) {
         // Convert to a ROS image
         if (!is_flipped) {
-            image_msg_ = ConvertFrameToMessage(frame, i);
+            image_msg_ = ConvertFrameToMessage(frame);
         } else {
             // Flip the frame if needed
             cv::flip(frame, flipped_frame, 1);
-            image_msg_ = ConvertFrameToMessage(frame, i);
+            image_msg_ = ConvertFrameToMessage(frame);
         }
         
         // Publish the image message and increment the frame_id.
-        RCLCPP_INFO(nh_->get_logger(), "Publishing image #%zd", i);
+        RCLCPP_INFO(nh_->get_logger(), "Publishing image");
         
         // Put the message into a queue to be processed by the middleware.
         // This call is non-blocking.
-        //compressed_image_pub_->publish(compressed_image_msg_);
         sensor_msgs::msg::CameraInfo::SharedPtr camera_info_msg_(
                                                                  new sensor_msgs::msg::CameraInfo(cinfo_manager_.getCameraInfo()));
         
         camera_info_pub_.publish(image_msg_, camera_info_msg_);
-        ++i;
     }
 }
 
@@ -128,14 +124,6 @@ int main(int argc, char * argv[])
     rclcpp::init(argc, argv);
     
     rclcpp::executors::SingleThreadedExecutor exec;
-    
-    // Initialize default demo parameters
-    
-    //double freq = 30.0;
-    //size_t width = 320;
-    //size_t height = 240;
-    
-    std::string topic("/iris/image");
     
     auto const nh_ = std::make_shared<rclcpp::Node>("camera");
     
