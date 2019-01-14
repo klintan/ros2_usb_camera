@@ -25,52 +25,16 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "cv_bridge/cv_bridge.h"
 
-class Camera : public rclcpp::Node {
-public:
-    explicit Camera(const std::string & topic_name, const size_t & width, const size_t & height, double freq);
-    ~Camera();
-    
-private:
-    cv_bridge::CvImage img_bridge;
-    void convert_frame_to_message(const cv::Mat & frame, size_t frame_id, sensor_msgs::msg::CompressedImage::SharedPtr msg);
-    void convert_frame_to_message(const cv::Mat & frame, size_t frame_id, sensor_msgs::msg::Image::SharedPtr msg);
-
-    std::shared_ptr<sensor_msgs::msg::Image> image_msg_;
-    
-    /* using image_transport library instead of native Ros2 messages */
-    //rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr image_pub_;
-
-    std::shared_ptr<sensor_msgs::msg::CompressedImage> compressed_image_msg_;
-    rclcpp::Publisher<sensor_msgs::msg::CompressedImage>::SharedPtr compressed_image_pub_;
-    
-    std::shared_ptr<sensor_msgs::msg::CameraInfo> camera_info_msg_;
-    
-    //camera_info_manager::CameraInfoManager cinfo_manager_;
-    //image_transport::CameraPublisher camera_info_pub_;
-
-    //image_transport::ImageTransport image_pub_;
-    
-    void ImageCallback();
-
-    rclcpp::TimerBase::SharedPtr timer_;
-    cv::Mat frame;
-    cv::Mat flipped_frame;
-    cv::VideoCapture cap;
-    size_t i;
-    bool show_camera;
-    bool is_flipped;
-};
-
-
-
 class CameraNode {
 public:
-    explicit CameraNode(std::shared_ptr<rclcpp::Node> const nh, std::shared_ptr<rclcpp::Node> const privnh);
+    explicit CameraNode(std::shared_ptr<rclcpp::Node> const nh);
     ~CameraNode();
     
     bool Start();
     void Stop();
     
+    std::shared_ptr<rclcpp::Node> nh_;
+
 private:
     rclcpp::TimerBase::SharedPtr timer_;
     cv::Mat frame;
@@ -84,8 +48,6 @@ private:
     bool show_camera;
     bool is_flipped;
     
-    std::shared_ptr<rclcpp::Node> nh_;
-    std::shared_ptr<rclcpp::Node> priv_nh_;
     
     camera_info_manager::CameraInfoManager cinfo_manager_;
     image_transport::CameraPublisher camera_info_pub_;
@@ -95,12 +57,11 @@ private:
 
     
     
-    void ConvertFrameToMessage(const cv::Mat & frame, size_t frame_id, sensor_msgs::msg::Image::SharedPtr msg);
-    void ConvertFrameToMessage(const cv::Mat & frame, size_t frame_id, sensor_msgs::msg::CompressedImage::SharedPtr msg);
+    std::shared_ptr<sensor_msgs::msg::Image> ConvertFrameToMessage(const cv::Mat & frame, size_t frame_id);
 
     image_transport::ImageTransport image_pub_;
     
-    void CaptureFrame();
+    void ImageCallback();
     
 
 };

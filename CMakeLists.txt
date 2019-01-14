@@ -45,7 +45,6 @@ function(custom_executable target)
     DESTINATION lib/${PROJECT_NAME})
 endfunction()
 
-custom_executable(usb_camera)
 custom_executable(usb_camera_node)
 
 
