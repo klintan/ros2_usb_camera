@@ -38,7 +38,7 @@ To get compressed images (works seamlessly with web streaming) republish the top
 
 `ros2 run image_transport republish raw in:=image_raw compressed out:=image_raw_compressed`
 
-Make sure to link/install https://github.com/ros-perception/image_transport_plugins/tree/ros2 before to enable compressed image republishing using image_transport since its not included in the base package.
+Make sure to link/install https://github.com/ros-perception/image_transport_plugins/tree/ros2 before to enable compressed image republishing using image_transport since its not included in the base package. More information here http://wiki.ros.org/image_transport, here http://wiki.ros.org/compressed_image_transport and here https://answers.ros.org/question/35183/compressed-image-to-image/
 
 ## References
 https://github.com/ros-perception/vision_opencv/tree/ros2

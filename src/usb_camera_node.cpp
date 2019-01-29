@@ -52,21 +52,6 @@ CameraNode::~CameraNode() {
 }
 
 
-/*sensor_msgs::msg::CompressedImage CameraNode::ConvertFrameToMessage(
- const cv::Mat & frame, size_t frame_id, sensor_msgs::msg::CompressedImage::SharedPtr msg)
- {
- 
- std_msgs::msg::Header header;
- //header.stamp = this->now();
- sensor_msgs::msg::CompressedImage img_msg;
- 
- img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, frame);
- 
- img_bridge.toCompressedImageMsg(img_msg); // from cv_bridge to sensor_msgs::CompressedImage
- msg->header =img_msg.header;
- msg->data = img_msg.data;
- }*/
-
 std::shared_ptr<sensor_msgs::msg::Image> CameraNode::ConvertFrameToMessage(const cv::Mat & frame)
 {
     std_msgs::msg::Header header;
@@ -102,6 +87,9 @@ void CameraNode::ImageCallback() {
 }
 
 bool CameraNode::Start(){
+    std::string url = "<path>/camera.yaml";
+    cinfo_manager_.loadCameraInfo(url);
+    
     cap.open(0);
     
     size_t width = 320;
