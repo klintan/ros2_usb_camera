@@ -127,5 +127,6 @@ int main(int argc, char * argv[])
     rclcpp::spin(nh_);
     
     rclcpp::shutdown();
+    delete camera_node;
     return 0;
 }
