@@ -11,7 +11,7 @@
 #include <memory>
 #include <string>
 
-#include "usb_camera_node.hpp"
+#include "usb_camera.hpp"
 
 
 using namespace std::chrono_literals;
@@ -46,10 +46,7 @@ cinfo_manager_(nh_.get()) {
 };
 
 
-
-CameraNode::~CameraNode() {
-    
-}
+CameraNode::~CameraNode() {}
 
 
 std::shared_ptr<sensor_msgs::msg::Image> CameraNode::ConvertFrameToMessage(const cv::Mat & frame)
@@ -62,7 +59,6 @@ std::shared_ptr<sensor_msgs::msg::Image> CameraNode::ConvertFrameToMessage(const
 
 
 void CameraNode::ImageCallback() {
-    
     cap >> frame;
     if (!frame.empty()) {
         // Convert to a ROS image
@@ -87,8 +83,10 @@ void CameraNode::ImageCallback() {
 }
 
 bool CameraNode::Start(){
-    std::string url = "<path>/camera.yaml";
-    cinfo_manager_.loadCameraInfo(url);
+    
+    /* get ROS2 config parameter for camera calibration file */
+    auto camera_calibration_file_param_ = nh_->get_parameter("camera_calibration_file");
+    cinfo_manager_.loadCameraInfo(camera_calibration_file_param_.value_to_string());
     
     cap.open(0);
     
@@ -111,9 +109,7 @@ int main(int argc, char * argv[])
     
     rclcpp::init(argc, argv);
     
-    rclcpp::executors::SingleThreadedExecutor exec;
-    
-    auto const nh_ = std::make_shared<rclcpp::Node>("camera");
+    auto const nh_ = std::make_shared<rclcpp::Node>("usb_camera");
     
     auto camera_node = new CameraNode(nh_);
     

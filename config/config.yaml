@@ -1,0 +1,4 @@
+usb_camera:
+    ros__parameters: 
+        camera_calibration_file: file:///config/camera.yaml
+
