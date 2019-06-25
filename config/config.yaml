@@ -1,4 +1,5 @@
-usb_camera:
-    ros__parameters: 
-        camera_calibration_file: file:///config/camera.yaml
+iris:
+    usb_camera:
+      ros__parameters: 
+        camera_calibration_file: file:///Users/andreasklintberg/personal/iris/config/camera.yaml
 

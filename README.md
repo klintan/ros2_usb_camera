@@ -25,7 +25,7 @@ Run
 
 ## Usage
 
-`ros2 run usb_camera usb_camera_node`
+`ros2 run usb_camera usb_camera __ns:=/<your namespace> __params:=config.yaml`
 
 
 ### Calibration files

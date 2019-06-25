@@ -9,21 +9,14 @@ endif()
 
 
 find_package(ament_cmake REQUIRED)
-find_package(example_interfaces REQUIRED)
-find_package(rcl REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(rcutils)
-find_package(rmw REQUIRED)
-find_package(rmw_opensplice_cpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(camera_info_manager REQUIRED)
 find_package(image_transport REQUIRED)
 find_package(camera_calibration_parsers REQUIRED)
-
-
-find_package(OpenCV REQUIRED)
+find_package(OpenCV 3 REQUIRED)
 
 include_directories(include ${cv_bridge_INCLUDE_DIRS})
 
@@ -31,10 +24,8 @@ include_directories(include ${cv_bridge_INCLUDE_DIRS})
 function(custom_executable target)
     add_executable(${target} src/${target}.cpp)
     ament_target_dependencies(${target}
-    "example_interfaces"
     "rclcpp"
     "sensor_msgs"
-    "rcutils"
     "std_msgs"
     "cv_bridge"
     "camera_info_manager"
@@ -45,7 +36,7 @@ function(custom_executable target)
     DESTINATION lib/${PROJECT_NAME})
 endfunction()
 
-custom_executable(usb_camera)
+custom_executable(${PROJECT_NAME})
 
 
 ament_package()

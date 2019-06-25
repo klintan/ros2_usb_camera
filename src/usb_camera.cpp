@@ -92,9 +92,9 @@ bool CameraNode::Start(){
     
     size_t width = 320;
     size_t height = 240;
-    
-    cap.set(CV_CAP_PROP_FRAME_WIDTH, static_cast<double>(width));
-    cap.set(CV_CAP_PROP_FRAME_HEIGHT, static_cast<double>(height));
+
+    cap.set(cv::CAP_PROP_FRAME_WIDTH, static_cast<double>(width));
+    cap.set(cv::CAP_PROP_FRAME_HEIGHT, static_cast<double>(height));
     
     std::cout << "set timer in start" << std::endl;
     timer_ = nh_->create_wall_timer(100ms, std::bind(&CameraNode::ImageCallback, this));
