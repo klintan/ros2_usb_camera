@@ -109,7 +109,8 @@ int main(int argc, char * argv[])
     
     rclcpp::init(argc, argv);
     
-    auto const nh_ = std::make_shared<rclcpp::Node>("usb_camera");
+    const rclcpp::NodeOptions options;
+    auto const nh_ = std::make_shared<rclcpp::Node>("usb_camera", options);
     
     auto camera_node = new CameraNode(nh_);
     
