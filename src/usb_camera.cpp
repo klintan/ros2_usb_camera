@@ -85,8 +85,8 @@ void CameraNode::ImageCallback() {
 bool CameraNode::Start(){
     
     /* get ROS2 config parameter for camera calibration file */
-    auto camera_calibration_file_param_ = nh_->get_parameter("camera_calibration_file");
-    cinfo_manager_.loadCameraInfo(camera_calibration_file_param_.value_to_string());
+    auto camera_calibration_file_param_ = nh_->declare_parameter("camera_calibration_file", "file:///Users/andreasklintberg/personal/ros2_usb_camera/config/camera.yaml");
+    cinfo_manager_.loadCameraInfo(camera_calibration_file_param_);
     
     cap.open(0);
     
