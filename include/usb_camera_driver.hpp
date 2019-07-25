@@ -58,14 +58,14 @@ private:
 
     bool is_flipped;
     
-    std::unique_ptr<camera_info_manager::CameraInfoManager> cinfo_manager_;
+    std::shared_ptr<camera_info_manager::CameraInfoManager> cinfo_manager_;
     image_transport::CameraPublisher camera_info_pub_;
     
     std::shared_ptr<sensor_msgs::msg::Image> image_msg_;
     
     std::shared_ptr<sensor_msgs::msg::Image> ConvertFrameToMessage(const cv::Mat & frame);
 
-    std::unique_ptr<image_transport::ImageTransport> image_pub_;
+    std::shared_ptr<image_transport::ImageTransport> image_pub_;
     
     void ImageCallback();
     

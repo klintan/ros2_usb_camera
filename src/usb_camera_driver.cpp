@@ -36,8 +36,8 @@ CameraDriver::CameraDriver(const rclcpp::NodeOptions& node_options) : Node("usb_
     std::cout << "intialize camera info manager and advertiseCamera" << std::endl;
     //image_pub_.reset(new image_transport::ImageTransport(this->shared_from_this()));
     
-    auto image_pub_ = std::make_unique<image_transport::ImageTransport>(this->shared_from_this());
-    cinfo_manager_ = std::make_unique<camera_info_manager::CameraInfoManager>(this);
+    auto image_pub_ = std::make_shared<image_transport::ImageTransport>(shared_from_this());
+    cinfo_manager_ = std::make_shared<camera_info_manager::CameraInfoManager>(this);
 
     camera_info_pub_ = image_pub_->advertiseCamera("image_raw", 1, false);
     std::cout << "does it get here" << std::endl;
