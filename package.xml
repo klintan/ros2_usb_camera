@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
-<package format="2">
-  <name>usb_camera</name>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>usb_camera_driver</name>
   <version>0.0.1</version>
   <description>Package containing a simple web camera setup</description>
   <maintainer email="ankl@kth.se">Andreas Klintberg</maintainer>
@@ -8,32 +9,17 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <buildtool_depend>rosidl_default_generators</buildtool_depend>
-  <build_depend>libopencv-dev</build_depend>
-  <build_depend>sensor_msgs</build_depend>
-  <build_depend>example_interfaces</build_depend>
-  <build_depend>rclcpp</build_depend>
-  <build_depend>rcutils</build_depend>
-  <build_depend>rmw</build_depend>
-  <build_depend>rmw_implementation_cmake</build_depend>
-  <build_depend>std_msgs</build_depend>
-  <build_depend>sensor_msgs</build_depend>
-  <build_depend>cv_bridge</build_depend>
-  <build_depend>image_transport</build_depend>
-  <build_depend>camera_calibration_parsers</build_depend>
-
-  <exec_depend>example_interfaces</exec_depend>
-  <exec_depend>launch_ros</exec_depend>
-  <exec_depend>rclcpp</exec_depend>
-  <exec_depend>rcutils</exec_depend>
-  <exec_depend>rmw</exec_depend>
-  <exec_depend>libopencv-dev</exec_depend>
-  <exec_depend>std_msgs</exec_depend>
-  <exec_depend>sensor_msgs</exec_depend>
-  <exec_depend>cv_bridge</exec_depend>
-  <exec_depend>image_transport</exec_depend>
-  <exec_depend>camera_calibration_parsers</exec_depend>
-
+  <depend>libopencv-dev</depend>
+  <depend>rclcpp</depend>
+  <depend>rcutils</depend>
+  <depend>rmw</depend>
+  <depend>rmw_implementation_cmake</depend>
+  <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>cv_bridge</depend>
+  <depend>image_transport</depend>
+  <depend>camera_calibration_parsers</depend>
+  <depend>launch_ros</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

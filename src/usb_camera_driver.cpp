@@ -1,44 +1,36 @@
-//
-//  usb_camera_node.cpp
-//  camera
-//
-//  Created by Andreas Klintberg on 11/17/18.
-//  Copyright © 2018 Andreas Klintberg. All rights reserved.
-//
+/*
+Copyright (c) 2019 Andreas Klintberg
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 
 #include <chrono>
 #include <cstdio>
 #include <memory>
 #include <string>
 
-#include "usb_camera.hpp"
+#include "usb_camera_driver.hpp"
 
 
 using namespace std::chrono_literals;
 
-/// Convert an OpenCV matrix encoding type to a string format recognized by sensor_msgs::Image.
-/**
- * \param[in] mat_type The OpenCV encoding type.
- * \return A string representing the encoding type.
- */
-std::string
-mat_type2encoding(int mat_type)
-{
-    switch (mat_type) {
-        case CV_8UC1:
-            return "mono8";
-        case CV_8UC3:
-            return "bgr8";
-        case CV_16SC1:
-            return "mono16";
-        case CV_8UC4:
-            return "rgba8";
-        default:
-            throw std::runtime_error("Unsupported encoding type");
-    }
-}
-
-CameraNode::CameraNode(std::shared_ptr<rclcpp::Node>  const nh) : nh_(nh),
+CameraDriver::CameraDriver(std::shared_ptr<rclcpp::Node>  const nh) : nh_(nh),
 image_pub_(nh_),
 cinfo_manager_(nh_.get()) {
     std::cout << "intialize camera info manager and advertiseCamera" << std::endl;
@@ -46,10 +38,7 @@ cinfo_manager_(nh_.get()) {
 };
 
 
-CameraNode::~CameraNode() {}
-
-
-std::shared_ptr<sensor_msgs::msg::Image> CameraNode::ConvertFrameToMessage(const cv::Mat & frame)
+std::shared_ptr<sensor_msgs::msg::Image> CameraDriver::ConvertFrameToMessage(const cv::Mat & frame)
 {
     std_msgs::msg::Header header;
     img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, frame);
@@ -58,7 +47,7 @@ std::shared_ptr<sensor_msgs::msg::Image> CameraNode::ConvertFrameToMessage(const
 }
 
 
-void CameraNode::ImageCallback() {
+void CameraDriver::ImageCallback() {
     cap >> frame;
     if (!frame.empty()) {
         // Convert to a ROS image
@@ -82,7 +71,7 @@ void CameraNode::ImageCallback() {
     }
 }
 
-bool CameraNode::Start(){
+bool CameraDriver::Start(){
     
     /* get ROS2 config parameter for camera calibration file */
     auto camera_calibration_file_param_ = nh_->declare_parameter("camera_calibration_file", "file://config/camera.yaml");
@@ -96,34 +85,9 @@ bool CameraNode::Start(){
     cap.set(cv::CAP_PROP_FRAME_WIDTH, static_cast<double>(width));
     cap.set(cv::CAP_PROP_FRAME_HEIGHT, static_cast<double>(height));
     
-    std::cout << "set timer in start" << std::endl;
-    timer_ = nh_->create_wall_timer(100ms, std::bind(&CameraNode::ImageCallback, this));
+    timer_ = nh_->create_wall_timer(100ms, std::bind(&CameraDriver::ImageCallback, this));
     
     return true;
 }
 
-int main(int argc, char * argv[])
-{
-    // based on libuvc
-    std::cout << "Starting camera node" << std::endl;
-    
-    rclcpp::init(argc, argv);
-    
-    const rclcpp::NodeOptions options;
-    auto const nh_ = std::make_shared<rclcpp::Node>("usb_camera", options);
-    
-    auto camera_node = new CameraNode(nh_);
-    
-    camera_node->Start();
-    
-    // Force flush of the stdout buffer.
-    // This ensures a correct sync of all prints
-    // even when executed simultaneously within a launch file.
-    setvbuf(stdout, NULL, _IONBF, BUFSIZ);
-    
-    rclcpp::spin(nh_);
-    
-    rclcpp::shutdown();
-    delete camera_node;
-    return 0;
-}
+
