@@ -33,14 +33,10 @@ namespace usb_camera_driver {
 
 CameraDriver::CameraDriver(const rclcpp::NodeOptions& node_options) : Node("usb_camera_driver", node_options)
 {
-    std::cout << "intialize camera info manager and advertiseCamera" << std::endl;
-    //image_pub_.reset(new image_transport::ImageTransport(this->shared_from_this()));
-    
-    auto image_pub_ = std::make_shared<image_transport::ImageTransport>(shared_from_this());
-    cinfo_manager_ = std::make_shared<camera_info_manager::CameraInfoManager>(this);
+    rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
+    auto camera_info_pub_ = image_transport::create_publisher(this, "image_raw", custom_qos_profile);
 
-    camera_info_pub_ = image_pub_->advertiseCamera("image_raw", 1, false);
-    std::cout << "does it get here" << std::endl;
+    cinfo_manager_ = std::make_shared<camera_info_manager::CameraInfoManager>(this);
 
      /* get ROS2 config parameter for camera calibration file */
     auto camera_calibration_file_param_ = this->declare_parameter("camera_calibration_file", "file://config/camera.yaml");
@@ -54,7 +50,6 @@ CameraDriver::CameraDriver(const rclcpp::NodeOptions& node_options) : Node("usb_
     cap.set(cv::CAP_PROP_FRAME_WIDTH, static_cast<double>(width));
     cap.set(cv::CAP_PROP_FRAME_HEIGHT, static_cast<double>(height));
     
-    std::cout << "set timer in start" << std::endl;
     timer_ = this->create_wall_timer(100ms, std::bind(&CameraDriver::ImageCallback, this));
 }
 

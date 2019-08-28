@@ -64,8 +64,6 @@ private:
     std::shared_ptr<sensor_msgs::msg::Image> image_msg_;
     
     std::shared_ptr<sensor_msgs::msg::Image> ConvertFrameToMessage(const cv::Mat & frame);
-
-    std::shared_ptr<image_transport::ImageTransport> image_pub_;
     
     void ImageCallback();
     
