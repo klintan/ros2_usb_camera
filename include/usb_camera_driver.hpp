@@ -57,6 +57,8 @@ private:
     cv_bridge::CvImage img_bridge;
 
     bool is_flipped;
+
+    std::string frame_id_;
     
     std::shared_ptr<camera_info_manager::CameraInfoManager> cinfo_manager_;
     image_transport::CameraPublisher camera_info_pub_;

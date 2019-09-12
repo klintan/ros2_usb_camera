@@ -27,6 +27,8 @@ Run
 
 `ros2 run usb_camera usb_camera __ns:=/<your namespace> __params:=config.yaml`
 
+Available parameters:
+- frame_id -> transform frame_id of the camera, defaults to "camera"
 
 ### Calibration files
 To use the camera info functionality you need to load a file from the camera_calibration (https://github.com/ros-perception/image_pipeline/tree/ros2/camera_calibration) library and put it in/name it `file:///Users/<youruser>/.ros/camera_info/camera.yaml`

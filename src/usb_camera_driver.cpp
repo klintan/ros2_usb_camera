@@ -34,6 +34,7 @@ namespace usb_camera_driver {
 CameraDriver::CameraDriver(const rclcpp::NodeOptions& node_options) : Node("usb_camera_driver", node_options)
 {
     rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
+    frame_id_ = this->declare_parameter("frame_id", "camera");
     camera_info_pub_ = image_transport::create_camera_publisher(this, "image_raw", custom_qos_profile);
 
     cinfo_manager_ = std::make_shared<camera_info_manager::CameraInfoManager>(this);
@@ -84,9 +85,12 @@ void CameraDriver::ImageCallback() {
         
         rclcpp::Time timestamp = this->get_clock()->now();
 
-        image_msg_.header.stamp = timestamp;
-        camera_info_msg_.header.stamp = timestamp;
-        
+        image_msg_->header.stamp = timestamp;
+        image_msg_->header.frame_id = frame_id_;
+
+        camera_info_msg_->header.stamp = timestamp;
+        camera_info_msg_->header.frame_id = frame_id_;
+
         camera_info_pub_.publish(image_msg_, camera_info_msg_);
     }
 }
