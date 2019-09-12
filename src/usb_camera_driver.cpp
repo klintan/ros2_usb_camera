@@ -56,7 +56,6 @@ CameraDriver::CameraDriver(const rclcpp::NodeOptions& node_options) : Node("usb_
 std::shared_ptr<sensor_msgs::msg::Image> CameraDriver::ConvertFrameToMessage(const cv::Mat & frame)
 {
     std_msgs::msg::Header header;
-    header.stamp = this->get_clock()->now();
     img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, frame);
     image_msg_ = img_bridge.toImageMsg(); // from cv_bridge to sensor_msgs::msg::Image
     return image_msg_;
@@ -82,6 +81,11 @@ void CameraDriver::ImageCallback() {
         // This call is non-blocking.
         sensor_msgs::msg::CameraInfo::SharedPtr camera_info_msg_(
                                                                  new sensor_msgs::msg::CameraInfo(cinfo_manager_->getCameraInfo()));
+        
+        rclcpp::Time timestamp = this->get_clock()->now();
+
+        image_msg_.header.stamp = timestamp;
+        camera_info_msg_.header.stamp = timestamp;
         
         camera_info_pub_.publish(image_msg_, camera_info_msg_);
     }
