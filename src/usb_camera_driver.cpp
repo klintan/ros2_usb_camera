@@ -35,6 +35,10 @@ CameraDriver::CameraDriver(const rclcpp::NodeOptions& node_options) : Node("usb_
 {
     rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
     frame_id_ = this->declare_parameter("frame_id", "camera");
+
+    image_height_ = this->declare_parameter("image_height", 1280);
+    image_width_ = this->declare_parameter("image_width", 720);
+
     camera_info_pub_ = image_transport::create_camera_publisher(this, "image_raw", custom_qos_profile);
 
     cinfo_manager_ = std::make_shared<camera_info_manager::CameraInfoManager>(this);
@@ -45,8 +49,8 @@ CameraDriver::CameraDriver(const rclcpp::NodeOptions& node_options) : Node("usb_
     
     cap.open(0);
     
-    size_t width = 320;
-    size_t height = 240;
+    size_t width = image_height_;
+    size_t height = image_width_;
 
     cap.set(cv::CAP_PROP_FRAME_WIDTH, static_cast<double>(width));
     cap.set(cv::CAP_PROP_FRAME_HEIGHT, static_cast<double>(height));

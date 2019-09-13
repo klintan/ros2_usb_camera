@@ -59,6 +59,9 @@ private:
     bool is_flipped;
 
     std::string frame_id_;
+    int image_height_;
+    int image_width_;
+
     
     std::shared_ptr<camera_info_manager::CameraInfoManager> cinfo_manager_;
     image_transport::CameraPublisher camera_info_pub_;
