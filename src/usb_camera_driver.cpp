@@ -46,14 +46,10 @@ CameraDriver::CameraDriver(const rclcpp::NodeOptions& node_options) : Node("usb_
      /* get ROS2 config parameter for camera calibration file */
     auto camera_calibration_file_param_ = this->declare_parameter("camera_calibration_file", "file://config/camera.yaml");
     cinfo_manager_->loadCameraInfo(camera_calibration_file_param_);
-    
-    cap.open(0);
-    
-    size_t width = image_height_;
-    size_t height = image_width_;
 
-    cap.set(cv::CAP_PROP_FRAME_WIDTH, static_cast<double>(width));
-    cap.set(cv::CAP_PROP_FRAME_HEIGHT, static_cast<double>(height));
+    cap.open(0);
+    cap.set(cv::CAP_PROP_FRAME_WIDTH, image_width_);
+    cap.set(cv::CAP_PROP_FRAME_HEIGHT, image_height_);
     
     timer_ = this->create_wall_timer(100ms, std::bind(&CameraDriver::ImageCallback, this));
 }
