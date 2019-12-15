@@ -19,7 +19,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 import os
 import sys
 from pathlib import Path
@@ -38,15 +37,34 @@ from launch_ros.descriptions import ComposableNode
 from launch_ros import get_default_launch_description
 import launch_ros.actions
 
+p = Path(os.path.realpath(__file__))
+PATH = "/".join(list(p.parts[1:-2]))
+
+
+NAMESPACE = '/camera'
 
 def generate_launch_description():
     ld = LaunchDescription()
 
-    ns = "/camera" 
-
-    usb_camera = launch_ros.actions.Node(
-            package='usb_camera_driver', node_executable='usb_camera_driver_node', output='screen', node_namespace=ns, 
-            parameters=[{"camera_calibration_file": "file:///config/camera.yaml"}])
+    ################################
+    # Drivers
+    ################################
+    usb_camera = launch_ros.actions.ComposableNodeContainer(
+        node_name="usb_camera_driver_container",
+        package='rclcpp_components',
+        node_namespace=NAMESPACE,
+        node_executable='component_container', 
+        composable_node_descriptions=[
+            ComposableNode(
+                    package='usb_camera_driver',
+                    node_plugin='usb_camera_driver::CameraDriver',
+                    node_name='usb_camera_driver_node',
+                    parameters=[
+                        {"camera_calibration_file": "file:///<file-path>"}
+                    ])
+                ],
+        output='screen'
+        )
 
     ld.add_action(usb_camera)
 
@@ -66,7 +84,6 @@ def main(argv=sys.argv[1:]):
     print('Starting launch of launch description...')
     print('')
 
-    #ls = LaunchService(debug=True)
     ls = LaunchService()
     ls.include_launch_description(get_default_launch_description())
     ls.include_launch_description(ld)
