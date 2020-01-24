@@ -74,10 +74,7 @@ void CameraDriver::ImageCallback() {
             cv::flip(frame, flipped_frame, 1);
             image_msg_ = ConvertFrameToMessage(frame);
         }
-        
-        // Publish the image message and increment the frame_id.
-        RCLCPP_INFO(this->get_logger(), "Publishing image");
-        
+               
         // Put the message into a queue to be processed by the middleware.
         // This call is non-blocking.
         sensor_msgs::msg::CameraInfo::SharedPtr camera_info_msg_(
