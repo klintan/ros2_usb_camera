@@ -33,13 +33,17 @@ namespace usb_camera_driver {
 
 CameraDriver::CameraDriver(const rclcpp::NodeOptions& node_options) : Node("usb_camera_driver", node_options)
 {
-    rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
+
     frame_id_ = this->declare_parameter("frame_id", "camera");
 
-    image_height_ = this->declare_parameter("image_height", 1280);
-    image_width_ = this->declare_parameter("image_width", 720);
+    image_width_ = this->declare_parameter("image_width", 1280);
+    image_height_ = this->declare_parameter("image_height", 720);
 
-    camera_info_pub_ = image_transport::create_camera_publisher(this, "image_raw", custom_qos_profile);
+    camera_id = this->declare_parameter("camera_id", 0);
+
+
+    rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_sensor_data;
+    camera_info_pub_ = image_transport::create_camera_publisher(this, "image", custom_qos_profile);
 
     cinfo_manager_ = std::make_shared<camera_info_manager::CameraInfoManager>(this);
 
@@ -47,7 +51,7 @@ CameraDriver::CameraDriver(const rclcpp::NodeOptions& node_options) : Node("usb_
     auto camera_calibration_file_param_ = this->declare_parameter("camera_calibration_file", "file://config/camera.yaml");
     cinfo_manager_->loadCameraInfo(camera_calibration_file_param_);
 
-    cap.open(0);
+    cap.open(camera_id);
     cap.set(cv::CAP_PROP_FRAME_WIDTH, image_width_);
     cap.set(cv::CAP_PROP_FRAME_HEIGHT, image_height_);
     
@@ -65,8 +69,9 @@ std::shared_ptr<sensor_msgs::msg::Image> CameraDriver::ConvertFrameToMessage(con
 
 void CameraDriver::ImageCallback() {
     cap >> frame;
+
     if (!frame.empty()) {
-        // Convert to a ROS image
+        // Convert to a ROS2 image
         if (!is_flipped) {
             image_msg_ = ConvertFrameToMessage(frame);
         } else {

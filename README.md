@@ -6,14 +6,14 @@ Features
 - CameraInfo available
 - CompressedImage topic (see compressed images for republishing using image_transport)
 - Image topic
-
+- Select camera (running the node for each camera connected)
 
 There might be major changes to the code as it is a WIP.
 
 
 ### Topics
-`/camera_info` - topic for camera info
-`/image_raw` - topic for raw image data
+- `/camera_info` - topic for camera info
+- `/image_raw` - topic for raw image data
 
 ## Installation
 
@@ -29,6 +29,9 @@ Run
 
 Available parameters:
 - frame_id -> transform frame_id of the camera, defaults to "camera"
+- width -> image width (1280 default)
+- height -> image height (720 default)
+- camera_id -> id of camera to capture (0 - 100, 0 default)
 
 ### Calibration files
 To use the camera info functionality you need to load a file from the camera_calibration (https://github.com/ros-perception/image_pipeline/tree/ros2/camera_calibration) library and put it in/name it `file:///Users/<youruser>/.ros/camera_info/camera.yaml`
