@@ -34,6 +34,7 @@ target_compile_definitions(usb_camera_driver
 
 ament_target_dependencies(usb_camera_driver
     "rclcpp"
+    "rclcpp_components"
     "sensor_msgs"
     "std_msgs"
     "cv_bridge"
