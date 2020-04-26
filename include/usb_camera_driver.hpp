@@ -38,7 +38,6 @@ SOFTWARE.
 #include <image_transport/image_transport.h>
 
 #include "opencv2/highgui/highgui.hpp"
-#include "cv_bridge/cv_bridge.h"
 
 namespace usb_camera_driver
 {
@@ -54,8 +53,6 @@ private:
     cv::Mat flipped_frame;
     cv::VideoCapture cap;
     
-    cv_bridge::CvImage img_bridge;
-
     bool is_flipped;
 
     std::string frame_id_;
