@@ -38,6 +38,8 @@ CameraDriver::CameraDriver(const rclcpp::NodeOptions &node_options) : Node("usb_
 
     image_width_ = this->declare_parameter("image_width", 1280);
     image_height_ = this->declare_parameter("image_height", 720);
+    double fps = this->declare_parameter("fps", 10.0);
+
 
     camera_id = this->declare_parameter("camera_id", 0);
 
@@ -54,7 +56,7 @@ CameraDriver::CameraDriver(const rclcpp::NodeOptions &node_options) : Node("usb_
     cap.set(cv::CAP_PROP_FRAME_WIDTH, image_width_);
     cap.set(cv::CAP_PROP_FRAME_HEIGHT, image_height_);
 
-    timer_ = this->create_wall_timer(100ms, std::bind(&CameraDriver::ImageCallback, this));
+    timer_ = this->create_wall_timer(std::chrono::duration<double>(1/fps), std::bind(&CameraDriver::ImageCallback, this));
 }
 
 std::shared_ptr<sensor_msgs::msg::Image> CameraDriver::ConvertFrameToMessage(const cv::Mat &frame)

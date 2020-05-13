@@ -28,10 +28,11 @@ Run
 `ros2 run usb_camera_driver usb_camera_driver_node __ns:=/<your namespace> __params:=config.yaml`
 
 Available parameters:
-- frame_id -> transform frame_id of the camera, defaults to "camera"
-- width -> image width (1280 default)
-- height -> image height (720 default)
-- camera_id -> id of camera to capture (0 - 100, 0 default)
+- `frame_id` -> transform frame_id of the camera, defaults to "camera"
+- `image_width` -> image width (1280 default)
+- `image_height` -> image height (720 default)
+- `fps` -> video fps (10 default)
+- `camera_id` -> id of camera to capture (0 - 100, 0 default)
 
 ### Calibration files
 To use the camera info functionality you need to load a file from the camera_calibration (https://github.com/ros-perception/image_pipeline/tree/ros2/camera_calibration) library and put it in/name it `file:///Users/<youruser>/.ros/camera_info/camera.yaml`
