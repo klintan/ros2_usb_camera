@@ -109,6 +109,8 @@ void CameraDriver::ImageCallback()
     if (!frame.empty() &&
         std::chrono::duration_cast<std::chrono::milliseconds>(now - last_frame_).count() > 1/fps_*1000)
     {
+        last_frame_ = now;
+
         // Convert to a ROS2 image
         if (!is_flipped)
         {
@@ -135,8 +137,6 @@ void CameraDriver::ImageCallback()
         camera_info_msg_->header.frame_id = frame_id_;
 
         camera_info_pub_.publish(image_msg_, camera_info_msg_);
-
-        last_frame_ = now;
     }
 }
 } // namespace usb_camera_driver
