@@ -38,8 +38,7 @@ CameraDriver::CameraDriver(const rclcpp::NodeOptions &node_options) : Node("usb_
 
     image_width_ = this->declare_parameter("image_width", 1280);
     image_height_ = this->declare_parameter("image_height", 720);
-    double fps = this->declare_parameter("fps", 10.0);
-
+    fps_ = this->declare_parameter("fps", 10.0);
 
     camera_id = this->declare_parameter("camera_id", 0);
 
@@ -56,7 +55,9 @@ CameraDriver::CameraDriver(const rclcpp::NodeOptions &node_options) : Node("usb_
     cap.set(cv::CAP_PROP_FRAME_WIDTH, image_width_);
     cap.set(cv::CAP_PROP_FRAME_HEIGHT, image_height_);
 
-    timer_ = this->create_wall_timer(std::chrono::duration<double>(1/fps), std::bind(&CameraDriver::ImageCallback, this));
+    last_frame_ = std::chrono::steady_clock::now();
+
+    timer_ = this->create_wall_timer(1ms, std::bind(&CameraDriver::ImageCallback, this));
 }
 
 std::shared_ptr<sensor_msgs::msg::Image> CameraDriver::ConvertFrameToMessage(const cv::Mat &frame)
@@ -101,7 +102,12 @@ void CameraDriver::ImageCallback()
 {
     cap >> frame;
 
-    if (!frame.empty())
+    auto now = std::chrono::steady_clock::now();
+
+    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(now - last_frame_).count() << std::endl;
+
+    if (!frame.empty() &&
+        std::chrono::duration_cast<std::chrono::milliseconds>(now - last_frame_).count() > 1/fps_*1000)
     {
         // Convert to a ROS2 image
         if (!is_flipped)
@@ -129,6 +135,8 @@ void CameraDriver::ImageCallback()
         camera_info_msg_->header.frame_id = frame_id_;
 
         camera_info_pub_.publish(image_msg_, camera_info_msg_);
+
+        last_frame_ = now;
     }
 }
 } // namespace usb_camera_driver
