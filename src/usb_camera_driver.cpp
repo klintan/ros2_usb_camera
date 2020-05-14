@@ -60,10 +60,15 @@ CameraDriver::CameraDriver(const rclcpp::NodeOptions &node_options) : Node("usb_
     timer_ = this->create_wall_timer(1ms, std::bind(&CameraDriver::ImageCallback, this));
 }
 
-std::shared_ptr<sensor_msgs::msg::Image> CameraDriver::ConvertFrameToMessage(const cv::Mat &frame)
+std::shared_ptr<sensor_msgs::msg::Image> CameraDriver::ConvertFrameToMessage(cv::Mat &frame)
 {
     std_msgs::msg::Header header_;
     sensor_msgs::msg::Image ros_image;
+
+    // Make sure output in the size the user wants even if it is not native
+    if(frame.rows != image_width_ || frame.cols != image_height_){
+        cv::resize(frame, frame, cv::Size(image_width_, image_height_));
+    }
 
     /* To remove CV-bridge and boost-python3 dependencies, this is pretty much a copy of the toImageMsg method in cv_bridge. */
     ros_image.header = header_;

@@ -38,6 +38,7 @@ SOFTWARE.
 #include <image_transport/image_transport.h>
 
 #include "opencv2/highgui/highgui.hpp"
+#include <opencv2/imgproc.hpp>
 
 namespace usb_camera_driver
 {
@@ -68,7 +69,7 @@ private:
     
     std::shared_ptr<sensor_msgs::msg::Image> image_msg_;
     
-    std::shared_ptr<sensor_msgs::msg::Image> ConvertFrameToMessage(const cv::Mat & frame);
+    std::shared_ptr<sensor_msgs::msg::Image> ConvertFrameToMessage(cv::Mat & frame);
     
     void ImageCallback();
     
