@@ -18,8 +18,9 @@ jobs:
     - uses: actions/checkout@v2
     - name: install_dependencies
       run: |
-        apt-get install libyaml-cpp-dev
-        apt-get install ros-eloquent-camera-info-manager
+        apt-get update
+        apt-get install libyaml-cpp-dev -y
+        apt-get install ros-eloquent-camera-info-manager -y
     - name: build
       run: colcon build
     - name: test
