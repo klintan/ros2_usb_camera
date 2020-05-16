@@ -12,9 +12,7 @@ on:
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
-
+    container: ros:eloquent
     steps:
     - uses: actions/checkout@v2
     - name: build
