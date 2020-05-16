@@ -13,9 +13,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: ros:eloquent
+    container: ros:eloquent-ros-core-bionic
     steps:
     - uses: actions/checkout@v2
+    - name: install_dependencies
+      run: |
+        apt-get install libyaml-cpp-dev
+        apt-get install ros-eloquent-camera-info-manager
     - name: build
       run: colcon build
     - name: test

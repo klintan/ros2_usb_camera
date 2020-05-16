@@ -8,16 +8,12 @@
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
-  <buildtool_depend>rosidl_default_generators</buildtool_depend>
 
   <depend>libopencv-dev</depend>
   <depend>rclcpp</depend>
-  <depend>rcutils</depend>
-  <depend>rmw</depend>
-  <depend>rmw_implementation_cmake</depend>
+  <depend>rclcpp_components</depend>
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
-  <depend>cv_bridge</depend>
   <depend>image_transport</depend>
   <depend>camera_calibration_parsers</depend>
   <depend>camera_info_manager</depend>

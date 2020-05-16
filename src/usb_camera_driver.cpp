@@ -109,8 +109,6 @@ void CameraDriver::ImageCallback()
 
     auto now = std::chrono::steady_clock::now();
 
-    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(now - last_frame_).count() << std::endl;
-
     if (!frame.empty() &&
         std::chrono::duration_cast<std::chrono::milliseconds>(now - last_frame_).count() > 1/fps_*1000)
     {
