@@ -1,0 +1,2 @@
+ament_add_gtest(usb_camera_driver_tests usb_camera_driver_tests.cpp)
+target_link_libraries(usb_camera_driver_tests usb_camera_driver)
