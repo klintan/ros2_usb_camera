@@ -25,14 +25,14 @@ jobs:
         apt-get install libopencv-dev -y
     - name: build
       run: |
-        . /opt/ros/eloquent/setup.bash
+        source /opt/ros/eloquent/setup.bash
         colcon build
     - name: test
       run: |
-        . /opt/ros/eloquent/setup.bash
-        . install/setup.bash
+        source /opt/ros/eloquent/setup.bash
+        source install/setup.bash
         colcon test
     - name: test result
       run: |
-        . install/setup.bash
+        source install/setup.bash
         colcon test-result
