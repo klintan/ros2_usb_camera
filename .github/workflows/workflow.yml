@@ -11,9 +11,10 @@ on:
       - dashing-devel
 
 jobs:
-  build:
+  build-test-job:
     runs-on: ubuntu-latest
-    container: ros:eloquent-ros-core-bionic
+    container: 
+      image: ros:eloquent-ros-core-bionic
     steps:
     - uses: actions/checkout@v2
     - name: install_dependencies
@@ -21,9 +22,17 @@ jobs:
         apt-get update
         apt-get install libyaml-cpp-dev -y
         apt-get install ros-eloquent-camera-info-manager -y
+        apt-get install libopencv-dev -y
     - name: build
-      run: colcon build
+      run: |
+        . /opt/ros/eloquent/setup.bash
+        colcon build
     - name: test
-      run: colcon test
-    - name: test results
-      run: colcon test-results
+      run: |
+        . /opt/ros/eloquent/setup.bash
+        . install/setup.bash
+        colcon test
+    - name: test result
+      run: |
+        . install/setup.bash
+        colcon test-result
