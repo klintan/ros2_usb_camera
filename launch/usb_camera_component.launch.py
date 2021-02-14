@@ -19,13 +19,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
-import sys
-from pathlib import Path
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))  # noqa
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'launch'))  # noqa
-
 import launch
 from launch import LaunchDescription
 from launch import LaunchIntrospector
@@ -33,62 +26,35 @@ from launch import LaunchService
 
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration
 
-from launch_ros import get_default_launch_description
+from ament_index_python.packages import get_package_share_directory
+
 import launch_ros.actions
-
-p = Path(os.path.realpath(__file__))
-PATH = "/".join(list(p.parts[1:-2]))
-
 
 NAMESPACE = '/camera'
 
+
 def generate_launch_description():
-    ld = LaunchDescription()
-
-    ################################
-    # Drivers
-    ################################
-    usb_camera = launch_ros.actions.ComposableNodeContainer(
-        node_name="usb_camera_driver_container",
-        package='rclcpp_components',
-        node_namespace=NAMESPACE,
-        node_executable='component_container', 
-        composable_node_descriptions=[
-            ComposableNode(
+    return LaunchDescription([
+        DeclareLaunchArgument(
+            'camera_calibration_file',
+            default_value='file://' + get_package_share_directory('usb_camera_driver') + '/config/camera.yaml'),
+        ComposableNodeContainer(
+            name="usb_camera_driver_container",
+            package='rclcpp_components',
+            namespace=NAMESPACE,
+            executable='component_container',
+            composable_node_descriptions=[
+                ComposableNode(
                     package='usb_camera_driver',
-                    node_plugin='usb_camera_driver::CameraDriver',
-                    node_name='usb_camera_driver_node',
+                    plugin='usb_camera_driver::CameraDriver',
+                    name='usb_camera_driver_node',
                     parameters=[
-                        {"camera_calibration_file": "file:///<file-path>"}
+                        {"camera_calibration_file": LaunchConfiguration('camera_calibration_file')}
                     ])
-                ],
-        output='screen'
+            ],
+            output='screen'
         )
-
-    ld.add_action(usb_camera)
-
-    return ld
-
-
-def main(argv=sys.argv[1:]):
-    """Main."""
-    ld = generate_launch_description()
-
-    print('Starting introspection of launch description...')
-    print('')
-
-    print(LaunchIntrospector().format_launch_description(ld))
-
-    print('')
-    print('Starting launch of launch description...')
-    print('')
-
-    ls = LaunchService()
-    ls.include_launch_description(get_default_launch_description())
-    ls.include_launch_description(ld)
-    return ls.run()
-
-
-if __name__ == '__main__':
-    main()
+    ])
