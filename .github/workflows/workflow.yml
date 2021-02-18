@@ -1,41 +1,16 @@
-name: C/C++ CI
+name: CI
 
-on:
-  push:
-    branches:
-      - master
-      - dashing-devel
-  pull_request:
-    branches:
-      - master
-      - dashing-devel
+on: [push, pull_request]
 
 jobs:
-  build-test-job:
+  industrial_ci:
+    strategy:
+      matrix:
+        env:
+          - {ROS_DISTRO: foxy, ROS_REPO: testing}
+          - {ROS_DISTRO: foxy, ROS_REPO: main}
     runs-on: ubuntu-latest
-    container: 
-      image: ros:eloquent-ros-core-bionic
     steps:
-    - uses: actions/checkout@v2
-    - name: install_dependencies
-      run: |
-        apt-get update
-        apt-get install libyaml-cpp-dev -y
-        apt-get install ros-eloquent-camera-info-manager -y
-        apt-get install libopencv-dev -y
-    - name: build
-      run: |
-        source /opt/ros/eloquent/setup.bash
-        colcon build
-      shell: bash
-    - name: test
-      run: |
-        source /opt/ros/eloquent/setup.bash
-        source install/setup.bash
-        colcon test
-      shell: bash
-    - name: test result
-      run: |
-        source install/setup.bash
-        colcon test-result
-      shell: bash
+      - uses: actions/checkout@v1
+      - uses: 'ros-industrial/industrial_ci@master'
+        env: ${{matrix.env}}
