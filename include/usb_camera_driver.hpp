@@ -34,8 +34,8 @@ SOFTWARE.
 
 #include "sensor_msgs/image_encodings.hpp"
 
-#include <camera_info_manager/camera_info_manager.h>
-#include <image_transport/image_transport.h>
+#include <camera_info_manager/camera_info_manager.hpp>
+#include <image_transport/image_transport.hpp>
 
 #include "opencv2/highgui/highgui.hpp"
 #include <opencv2/imgproc.hpp>
