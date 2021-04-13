@@ -8,7 +8,7 @@ Features
 - Image topic
 - Select camera (running the node for each camera connected)
 
-There might be major changes to the code as it is a WIP.
+There might be major changes to the code as it is a WIP. This is a simple camera driver using OpenCV. With this comes less flexibility for custom camera settings etc but simple to setup and use. If you have more complex requirements I've listed some alternate packages in the Alternate packages section.
 
 
 ### Topics
@@ -45,6 +45,11 @@ To get compressed images (works seamlessly with web streaming) republish the top
 `ros2 run image_transport republish raw in:=image_raw compressed out:=image_raw_compressed`
 
 Make sure to link/install https://github.com/ros-perception/image_transport_plugins/tree/ros2 before to enable compressed image republishing using image_transport since its not included in the base package. More information here http://wiki.ros.org/image_transport, here http://wiki.ros.org/compressed_image_transport and here https://answers.ros.org/question/35183/compressed-image-to-image/
+
+## Alternate packages
+Other camera packages in ROS2 now available: 
+
+- https://github.com/ros-drivers/usb_cam/tree/ros2
 
 ## References
 https://github.com/ros-perception/vision_opencv/tree/ros2
